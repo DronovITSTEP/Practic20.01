@@ -8,7 +8,7 @@ using namespace std;
 void f1() {
     char* str = new char[255];
     gets_s(str, 255);
-    int l = strlen(str);
+    int l = strlen(str)+1;
 
     char* res_str = nullptr;
     char* word = new char[125];
@@ -16,17 +16,18 @@ void f1() {
     while (p = strchr(str, ' ')) {
         strncpy_s(word, 125, str, strlen(str) - strlen(p));
         if (res_str) 
-            strcat_s(res_str, strlen(res_str) + strlen(word) + 1, word);
+            strcat_s(res_str, l, word);
         else {
-            res_str = new char[strlen(str)];
-            strcpy_s(res_str, strlen(word) + 1, word);
+            res_str = new char[l];
+            strcpy_s(res_str, l, word);
         }
-        strcat_s(res_str, strlen(res_str) + sizeof(char) + 1, "\t");
+        strcat_s(res_str, l, "\t");
         str += strlen(word) + 1;
     }
-    if (res_str) strcat_s(res_str, strlen(res_str) + strlen(str)+1, str);
+    if (res_str) strcat_s(res_str, l, str);
     puts(res_str);
-    puts(str - l-1);
+    delete[]word;
+    delete[]res_str;
 }
 
 /*
@@ -76,28 +77,32 @@ void f3(){
 */
 void f4(){
     char* str = new char[125] {"rtt t tr"};
-    char* rev_str = new char[strlen(str)+1];
-    char* str2 = nullptr;
-    
-    strcpy_s(rev_str, 126, str);
-    char* rev_str2 = rev_str;
-
-    while (rev_str2 = strchr(rev_str2, ' ')) {
-        if (str2) strcat_s(str2, strlen(str2) + strlen(rev_str2)+1,
-            rev_str);
-        else {
-            str2 = new char[strlen(str) + 1];
-            strncpy_s(str2, strlen(rev_str) + strlen(rev_str2) + 1,
-                rev_str, strlen(rev_str) - strlen(rev_str2));
-        }
-        rev_str2++;
+    size_t count = 0;
+    char* p = str;
+    while (p = strchr(p, ' ')) {
+        count++;
+        p++;
     }
-    
-    _strrev(str);
-    cout << str << " " << rev_str << endl;
-    if (_stricmp(str, rev_str) == 0) cout << "Yes";
-    else cout << "No";
 
+    size_t size = strlen(str) - count + 1;
+    char* newstr = new char[size];
+    p = str;
+
+    char* temp = strchr(p, ' ');
+    strncpy_s(newstr, size, p, strlen(p) - strlen(temp));
+    p = temp + 1;
+
+    while (temp = strchr(p, ' '))
+    {
+        strncat_s(newstr, size, p, strlen(p) - strlen(temp));
+        p = temp + 1;
+    }
+    strcat_s(newstr, size, p);
+
+    char* revstr = new char[size];
+    strcpy_s(revstr, size, newstr);
+    if (!_stricmp(newstr,_strrev(revstr))) cout << "Yes";
+    else cout << "No";
 }
 
 int main()
